@@ -1,0 +1,206 @@
+;; ============================================================================
+;; CalendarSUMO_Intervals.kif
+;;
+;; Interval realization functions and bridge axioms.
+;; Load after:
+;;   CalendarSUMO_Core.kif
+;;   CalendarSUMO_Arithmetic.kif
+;;   CalendarSUMO_Allen.kif
+;; ============================================================================
+
+(instance YearIntervalFn UnaryFunction)
+(domain YearIntervalFn 1 Integer)
+(range YearIntervalFn TimeInterval)
+
+(instance MonthIntervalFn BinaryFunction)
+(domain MonthIntervalFn 1 Integer)
+(domain MonthIntervalFn 2 Integer)
+(range MonthIntervalFn TimeInterval)
+
+(instance DayIntervalFn TernaryFunction)
+(domain DayIntervalFn 1 Integer)
+(domain DayIntervalFn 2 Integer)
+(domain DayIntervalFn 3 Integer)
+(range DayIntervalFn TimeInterval)
+
+(instance DateTimeMinuteIntervalFn Function)
+(domain DateTimeMinuteIntervalFn 1 Integer)
+(domain DateTimeMinuteIntervalFn 2 Integer)
+(domain DateTimeMinuteIntervalFn 3 Integer)
+(domain DateTimeMinuteIntervalFn 4 Integer)
+(domain DateTimeMinuteIntervalFn 5 Integer)
+(range DateTimeMinuteIntervalFn TimeInterval)
+
+;; Realization of class-valued calendar constructors.
+(=>
+  (instance ?Y Integer)
+  (instance
+    (YearIntervalFn ?Y)
+    (YearFn ?Y)))
+
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer))
+  (instance
+    (MonthIntervalFn ?Y ?M)
+    (MonthFn (MonthNumberFn ?M) (YearFn ?Y))))
+
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (instance ?D Integer))
+  (instance
+    (DayIntervalFn ?Y ?M ?D)
+    (DateFromYMDFn ?Y ?M ?D)))
+
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (instance ?D Integer)
+    (instance ?H Integer)
+    (instance ?Min Integer))
+  (instance
+    (DateTimeMinuteIntervalFn ?Y ?M ?D ?H ?Min)
+    (DateTimeFromYMDHMFn ?Y ?M ?D ?H ?Min)))
+
+;; Month intervals inside year intervals.
+(=>
+  (instance ?Y Integer)
+  (and
+    (allenStarts (MonthIntervalFn ?Y 1) (YearIntervalFn ?Y))
+    (allenFinishes (MonthIntervalFn ?Y 12) (YearIntervalFn ?Y))))
+
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (greaterThan ?M 1)
+    (lessThan ?M 12))
+  (allenDuring
+    (MonthIntervalFn ?Y ?M)
+    (YearIntervalFn ?Y)))
+
+;; Day intervals inside month intervals.
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (instance ?L Integer)
+    (daysInMonth ?M ?Y ?L))
+  (and
+    (allenStarts
+      (DayIntervalFn ?Y ?M 1)
+      (MonthIntervalFn ?Y ?M))
+    (allenFinishes
+      (DayIntervalFn ?Y ?M ?L)
+      (MonthIntervalFn ?Y ?M))))
+
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (instance ?D Integer)
+    (instance ?L Integer)
+    (daysInMonth ?M ?Y ?L)
+    (greaterThan ?D 1)
+    (lessThan ?D ?L))
+  (allenDuring
+    (DayIntervalFn ?Y ?M ?D)
+    (MonthIntervalFn ?Y ?M)))
+
+;; Consecutive months meet.
+(=>
+  (and
+    (instance ?Y Integer)
+    (instance ?M Integer)
+    (greaterThan ?M 0)
+    (lessThanOrEqualTo ?M 11))
+  (allenMeets
+    (MonthIntervalFn ?Y ?M)
+    (MonthIntervalFn ?Y (AdditionFn ?M 1))))
+
+(=>
+  (instance ?Y Integer)
+  (allenMeets
+    (MonthIntervalFn ?Y 12)
+    (MonthIntervalFn (AdditionFn ?Y 1) 1)))
+
+;; Successor-date normalization implies day-interval meeting.
+(=>
+  (and
+    (validCalendarDate ?Y ?M ?D)
+    (dateCalculation
+      (AdditionFn ?D 1)
+      ?M
+      ?Y
+      (DateFromYMDFn ?Y2 ?M2 ?D2)))
+  (allenMeets
+    (DayIntervalFn ?Y ?M ?D)
+    (DayIntervalFn ?Y2 ?M2 ?D2)))
+
+;; Minute intervals inside day intervals.
+(=>
+  (validCalendarDate ?Y ?M ?D)
+  (and
+    (allenStarts
+      (DateTimeMinuteIntervalFn ?Y ?M ?D 0 0)
+      (DayIntervalFn ?Y ?M ?D))
+    (allenFinishes
+      (DateTimeMinuteIntervalFn ?Y ?M ?D 23 59)
+      (DayIntervalFn ?Y ?M ?D))))
+
+(=>
+  (and
+    (validCalendarDate ?Y ?M ?D)
+    (instance ?H Integer)
+    (instance ?Min Integer)
+    (greaterThan ?H -1)
+    (lessThanOrEqualTo ?H 23)
+    (greaterThan ?Min -1)
+    (lessThanOrEqualTo ?Min 59)
+    (not (and (equal ?H 0) (equal ?Min 0)))
+    (not (and (equal ?H 23) (equal ?Min 59))))
+  (allenDuring
+    (DateTimeMinuteIntervalFn ?Y ?M ?D ?H ?Min)
+    (DayIntervalFn ?Y ?M ?D)))
+
+;; Consecutive minute intervals meet within an hour.
+(=>
+  (and
+    (validCalendarDate ?Y ?M ?D)
+    (instance ?H Integer)
+    (instance ?Min Integer)
+    (greaterThan ?H -1)
+    (lessThanOrEqualTo ?H 23)
+    (greaterThan ?Min -1)
+    (lessThanOrEqualTo ?Min 58))
+  (allenMeets
+    (DateTimeMinuteIntervalFn ?Y ?M ?D ?H ?Min)
+    (DateTimeMinuteIntervalFn ?Y ?M ?D ?H (AdditionFn ?Min 1))))
+
+;; The final minute of an hour meets the first minute of the next hour.
+(=>
+  (and
+    (validCalendarDate ?Y ?M ?D)
+    (instance ?H Integer)
+    (greaterThan ?H -1)
+    (lessThanOrEqualTo ?H 22))
+  (allenMeets
+    (DateTimeMinuteIntervalFn ?Y ?M ?D ?H 59)
+    (DateTimeMinuteIntervalFn ?Y ?M ?D (AdditionFn ?H 1) 0)))
+
+;; The final minute of a day meets the first minute of the normalized successor day.
+(=>
+  (and
+    (validCalendarDate ?Y ?M ?D)
+    (dateCalculation
+      (AdditionFn ?D 1)
+      ?M
+      ?Y
+      (DateFromYMDFn ?Y2 ?M2 ?D2)))
+  (allenMeets
+    (DateTimeMinuteIntervalFn ?Y ?M ?D 23 59)
+    (DateTimeMinuteIntervalFn ?Y2 ?M2 ?D2 0 0)))
