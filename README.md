@@ -1,62 +1,39 @@
-# CalendarSUMO interval bundle v1
+# CalendarSUMO interval bundle (SUMO-aligned version)
 
-This package is a modest six-file starting point for the SUMO/Allen continuation
-of the Gregorian temporal-arithmetic work.
+This version aligns the interval layer with the temporal predicates already
+present in SUMO.  It avoids introducing duplicate `allen*` predicates for
+relations that SUMO already defines.
 
-## Files
+The KIF files now use those SUMO predicates directly.  `CalendarSUMO_Allen.kif`
+is retained only as an explanatory compatibility file and introduces no new
+axioms.
 
-1. `CalendarSUMO_Core.kif`
-   - numeric month bridge
-   - class-valued date and date-time constructors
-   - declarations for arithmetic predicates
-   - `validCalendarDate`
+One caveat is recorded explicitly in `CalendarSUMO_Allen.kif`: SUMO
+`overlapsTemporally` is broader than Allen's strict directional `overlaps`
+relation.  SUMO's relation means that two intervals have a common temporal part
+and is symmetric/reflexive.  Allen's strict overlap is directional:
+`Begin(I) < Begin(J) < End(I) < End(J)`.  The present package does not need
+strict directional overlap, so no replacement predicate is declared.  The Allen
+file contains a commented optional template for `strictTemporalOverlap` in case
+a later extension genuinely needs that relation.
 
-2. `CalendarSUMO_Arithmetic.kif`
-   - Gregorian month-length axioms
-   - leap/nonleap February case
-   - basic recursive `dateCalculation` rules
-   - no caches, anchors, activation atoms, or acceleration rules
-
-3. `CalendarSUMO_Allen.kif`
-   - Allen-style endpoint relations over SUMO `BeginFn`, `EndFn`, and `before`
-
-4. `CalendarSUMO_Intervals.kif`
-   - interval realization functions
-   - month/year and day/month bridge axioms
-   - month adjacency
-   - successor-day meeting
-   - minute/day placement and minute adjacency
-
-5. `CalendarSUMO_Derived.kif`
-   - intentionally empty in v1, reserved for separately justified or checked lemmas
-
-6. `CalendarSUMO_Benchmarks.kif`
-   - a small conjecture-style suite aligned with the current manuscript examples
-
-## Suggested load order
+## Normal load order
 
 1. Core SUMO/MILO ontology
 2. `CalendarSUMO_Core.kif`
 3. `CalendarSUMO_Arithmetic.kif`
-4. `CalendarSUMO_Allen.kif`
+4. `CalendarSUMO_Allen.kif` (explanatory placeholder; no new axioms)
 5. `CalendarSUMO_Intervals.kif`
 6. optionally `CalendarSUMO_Derived.kif`
-7. `CalendarSUMO_Benchmarks.kif` when selecting proof goals
+7. `CalendarSUMO_Benchmarks.kif`
+
+Do not concatenate the files into one new file for checking unless Sigma has
+already loaded the Core signature in the KB.  `CalendarSUMO_Core.kif` remains a
+signature file: it contains declarations and domain/range information only and
+should be loaded before formulas using the new calendar predicates and interval
+functions.
 
 ## Scope
 
-This package is intentionally small. It uses the prior tptp temporal files
-as donors for the shared calendar constructors and the basic normalization style,
-but it does not import their caches, activation atoms, or acceleration layers.
-
-The benchmark file contains conjecture-style formulas marked by comments. A
-downstream SUMO/Sigma or KIF-to-TPTP workflow can select those formulas as goals.
-
-## Validation
-
-The included `check_calendar_sumo_kif.py` performs lightweight structural checks:
-parenthesis balance, ASCII sanity, a small date-literal validity pass, and scans
-for forbidden cache/activation tokens in the semantic files.
-
-It is not a full SUO-KIF parser and does not replace loading the files in the
-intended SUMO toolchain.
+The package is intentionally modest.  It does not include caches, activation atoms, acceleration rules, or solver performance claims.  The benchmark file contains
+representative conjecture-style formulas only.
