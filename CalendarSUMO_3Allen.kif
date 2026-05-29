@@ -1,0 +1,61 @@
+;; ============================================================================
+;; CalendarSUMO_Allen.kif
+;;
+;; SUMO-aligned Allen compatibility note.
+;; Requires CalendarSUMO_Core.kif to be loaded first.
+;;
+;; This file intentionally introduces no duplicate allen* predicates.  The
+;; relevant endpoint relations already exist in SUMO and are used directly:
+;;
+;;   Allen before   -> earlier
+;;   Allen meets    -> meetsTemporally
+;;   Allen starts   -> starts
+;;   Allen finishes -> finishes
+;;   Allen during   -> during
+;;
+;; Converse Allen cases are expressed by reversing arguments.  For example,
+;; Allen after is (earlier ?J ?I), Allen met-by is
+;; (meetsTemporally ?J ?I), Allen contains is (during ?J ?I), and so on.
+;;
+;; ---------------------------------------------------------------------------
+;; The overlap caveat
+;; ---------------------------------------------------------------------------
+;;
+;; SUMO's overlapsTemporally is not Allen's strict directional overlap.
+;;
+;; In SUMO, overlapsTemporally means that two intervals have a common temporal
+;; part.  It is declared symmetric and reflexive.  That is the right relation
+;; for "there exists some shared temporal subinterval."
+;;
+;; Allen's strict overlap relation is directional.  In endpoint notation:
+;;
+;;     Begin(I) < Begin(J) < End(I) < End(J).
+;;
+;; Therefore, this file does not identify strict Allen overlap with
+;; overlapsTemporally.
+;;
+;; The present calendar interval package does not use strict directional
+;; overlap in its bridge axioms or benchmark conjectures.  Hence no new
+;; predicate is declared here.
+;;
+;; If strict directional overlap becomes necessary later, it should be added
+;; deliberately, preferably under a name that does not suggest it is the same
+;; as SUMO overlapsTemporally.  A possible optional extension would be:
+;;
+;;   strictTemporalOverlap(I,J)  iff
+;;      before(BeginFn(I), BeginFn(J)) and
+;;      before(BeginFn(J), EndFn(I)) and
+;;      before(EndFn(I), EndFn(J)).
+;;
+;; The corresponding SUO-KIF axiom would be:
+;;
+;; (<=> (strictTemporalOverlap ?I ?J)
+;;      (and
+;;        (instance ?I TimeInterval)
+;;        (instance ?J TimeInterval)
+;;        (before (BeginFn ?I) (BeginFn ?J))
+;;        (before (BeginFn ?J) (EndFn ?I))
+;;        (before (EndFn ?I) (EndFn ?J))))
+;;
+;; This optional predicate is intentionally not active in the current package since we do not use it.
+;; =================================================================================================

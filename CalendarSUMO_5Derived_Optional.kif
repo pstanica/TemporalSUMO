@@ -1,0 +1,7 @@
+;; ============================================================================
+;; CalendarSUMO_Derived.kif
+;;
+;; Reserved for derived lemmas that are separately justified or mechanically
+;; checked.  This initial release intentionally contains no additional axioms.
+;; Requires CalendarSUMO_Core.kif to be loaded first.
+;; ============================================================================

@@ -1,0 +1,215 @@
+;; ============================================================================
+;; CalendarSUMO_Arithmetic.kif
+;;
+;; Modest Gregorian arithmetic component.
+;; Requires CalendarSUMO_Core.kif to be loaded first.
+;; ============================================================================
+
+(equal (MonthNumberFn 1) January)
+(equal (MonthNumberFn 2) February)
+(equal (MonthNumberFn 3) March)
+(equal (MonthNumberFn 4) April)
+(equal (MonthNumberFn 5) May)
+(equal (MonthNumberFn 6) June)
+(equal (MonthNumberFn 7) July)
+(equal (MonthNumberFn 8) August)
+(equal (MonthNumberFn 9) September)
+(equal (MonthNumberFn 10) October)
+(equal (MonthNumberFn 11) November)
+(equal (MonthNumberFn 12) December)
+
+(forall (?Y ?M ?D)
+  (=>
+    (and
+      (instance ?Y Integer)
+      (instance ?M Integer)
+      (instance ?D Integer))
+    (equal
+      (DateFromYMDFn ?Y ?M ?D)
+      (DayFn ?D (MonthFn (MonthNumberFn ?M) (YearFn ?Y))))))
+
+(forall (?Y ?M ?D ?H ?Min)
+  (=>
+    (and
+      (instance ?Y Integer)
+      (instance ?M Integer)
+      (instance ?D Integer)
+      (instance ?H Integer)
+      (instance ?Min Integer))
+    (equal
+      (DateTimeFromYMDHMFn ?Y ?M ?D ?H ?Min)
+      (MinuteFn ?Min (HourFn ?H (DateFromYMDFn ?Y ?M ?D))))))
+
+(forall (?Y ?M ?D)
+  (<=>
+    (validCalendarDate ?Y ?M ?D)
+    (and
+      (instance ?Y Integer)
+      (instance ?M Integer)
+      (instance ?D Integer)
+      (greaterThan ?M 0)
+      (lessThanOrEqualTo ?M 12)
+      (exists (?L)
+        (and
+          (instance ?L Integer)
+          (daysInMonth ?M ?Y ?L)
+          (greaterThan ?D 0)
+          (lessThanOrEqualTo ?D ?L))))))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 1 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (and
+      (=>
+        (and
+          (equal (RemainderFn ?Y 4) 0)
+          (or
+            (not (equal (RemainderFn ?Y 100) 0))
+            (equal (RemainderFn ?Y 400) 0)))
+        (daysInMonth 2 ?Y 29))
+      (=>
+        (or
+          (not (equal (RemainderFn ?Y 4) 0))
+          (and
+            (equal (RemainderFn ?Y 100) 0)
+            (not (equal (RemainderFn ?Y 400) 0))))
+        (daysInMonth 2 ?Y 28)))))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 3 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 4 ?Y 30)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 5 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 6 ?Y 30)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 7 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 8 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 9 ?Y 30)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 10 ?Y 31)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 11 ?Y 30)))
+
+(forall (?Y)
+  (=>
+    (instance ?Y Integer)
+    (daysInMonth 12 ?Y 31)))
+
+(forall (?D ?M ?Y ?Limit)
+  (=>
+    (and
+      (instance ?D Integer)
+      (instance ?M Integer)
+      (instance ?Y Integer)
+      (instance ?Limit Integer)
+      (daysInMonth ?M ?Y ?Limit)
+      (greaterThan ?D 0)
+      (lessThanOrEqualTo ?D ?Limit))
+    (dateCalculation ?D ?M ?Y (DateFromYMDFn ?Y ?M ?D))))
+
+(forall (?D ?M ?Y ?Limit ?Res)
+  (=>
+    (and
+      (instance ?D Integer)
+      (instance ?M Integer)
+      (instance ?Y Integer)
+      (instance ?Limit Integer)
+      (subclass ?Res Day)
+      (daysInMonth ?M ?Y ?Limit)
+      (greaterThan ?D ?Limit)
+      (not (equal ?M 12))
+      (dateCalculation
+        (SubtractionFn ?D ?Limit)
+        (AdditionFn ?M 1)
+        ?Y
+        ?Res))
+    (dateCalculation ?D ?M ?Y ?Res)))
+
+(forall (?D ?M ?Y ?Limit ?Res)
+  (=>
+    (and
+      (instance ?D Integer)
+      (instance ?M Integer)
+      (instance ?Y Integer)
+      (instance ?Limit Integer)
+      (subclass ?Res Day)
+      (daysInMonth ?M ?Y ?Limit)
+      (greaterThan ?D ?Limit)
+      (equal ?M 12)
+      (dateCalculation
+        (SubtractionFn ?D ?Limit)
+        1
+        (AdditionFn ?Y 1)
+        ?Res))
+    (dateCalculation ?D ?M ?Y ?Res)))
+
+(forall (?D ?M ?Y ?Limit ?Res)
+  (=>
+    (and
+      (instance ?D Integer)
+      (instance ?M Integer)
+      (instance ?Y Integer)
+      (instance ?Limit Integer)
+      (subclass ?Res Day)
+      (lessThanOrEqualTo ?D 0)
+      (not (equal ?M 1))
+      (daysInMonth (SubtractionFn ?M 1) ?Y ?Limit)
+      (dateCalculation
+        (AdditionFn ?D ?Limit)
+        (SubtractionFn ?M 1)
+        ?Y
+        ?Res))
+    (dateCalculation ?D ?M ?Y ?Res)))
+
+(forall (?D ?M ?Y ?Limit ?Res)
+  (=>
+    (and
+      (instance ?D Integer)
+      (instance ?M Integer)
+      (instance ?Y Integer)
+      (instance ?Limit Integer)
+      (subclass ?Res Day)
+      (lessThanOrEqualTo ?D 0)
+      (equal ?M 1)
+      (daysInMonth 12 (SubtractionFn ?Y 1) ?Limit)
+      (dateCalculation
+        (AdditionFn ?D ?Limit)
+        12
+        (SubtractionFn ?Y 1)
+        ?Res))
+    (dateCalculation ?D ?M ?Y ?Res)))

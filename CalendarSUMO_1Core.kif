@@ -1,0 +1,122 @@
+;; ============================================================================
+;; CalendarSUMO_Core.kif
+;;
+;; Signature file for the SUMO/Allen date-interval package.
+;;
+;; Load this file first, before checking or loading the other files.  Sigma's
+;; FormulaPreprocessor may not use domain declarations that occur in the same
+;; file currently being preprocessed, so the declarations are isolated here.
+;; ============================================================================
+
+(instance MonthNumberFn UnaryFunction)
+(domain MonthNumberFn 1 Integer)
+(rangeSubclass MonthNumberFn Month)
+(documentation MonthNumberFn EnglishLanguage
+  "Maps a numeric month 1--12 to the corresponding SUMO month class.")
+
+(instance DateFromYMDFn TernaryFunction)
+(domain DateFromYMDFn 1 Integer)
+(domain DateFromYMDFn 2 Integer)
+(domain DateFromYMDFn 3 Integer)
+(rangeSubclass DateFromYMDFn Day)
+(documentation DateFromYMDFn EnglishLanguage
+  "Maps numeric year, month, and day values to the corresponding SUMO Day subclass.")
+
+(instance DateTimeFromYMDHMFn Function)
+(domain DateTimeFromYMDHMFn 1 Integer)
+(domain DateTimeFromYMDHMFn 2 Integer)
+(domain DateTimeFromYMDHMFn 3 Integer)
+(domain DateTimeFromYMDHMFn 4 Integer)
+(domain DateTimeFromYMDHMFn 5 Integer)
+(rangeSubclass DateTimeFromYMDHMFn Minute)
+(documentation DateTimeFromYMDHMFn EnglishLanguage
+  "Maps numeric year, month, day, hour, and minute values to the corresponding SUMO Minute subclass.")
+
+(instance daysInMonth TernaryPredicate)
+(domain daysInMonth 1 Integer)
+(domain daysInMonth 2 Integer)
+(domain daysInMonth 3 Integer)
+(documentation daysInMonth EnglishLanguage
+  "daysInMonth(M,Y,L) states that numeric month M in numeric year Y has L days.")
+
+(instance daysInYear BinaryPredicate)
+(domain daysInYear 1 Integer)
+(domain daysInYear 2 Integer)
+(documentation daysInYear EnglishLanguage
+  "daysInYear(Y,L) states that numeric year Y has L days.")
+
+(instance dateCalculation Predicate)
+(domain dateCalculation 1 Integer)
+(domain dateCalculation 2 Integer)
+(domain dateCalculation 3 Integer)
+(domainSubclass dateCalculation 4 Day)
+(documentation dateCalculation EnglishLanguage
+  "dateCalculation(D,M,Y,R) states that day coordinate D in month M of year Y normalizes to date class R.")
+
+(instance timeNormalization Predicate)
+(domain timeNormalization 1 Integer)
+(domain timeNormalization 2 Integer)
+(domain timeNormalization 3 Integer)
+(domain timeNormalization 4 Integer)
+(domain timeNormalization 5 Integer)
+(domain timeNormalization 6 Integer)
+(domain timeNormalization 7 Integer)
+(documentation timeNormalization EnglishLanguage
+  "Minute/hour normalization relation inherited from the temporal arithmetic layer.")
+
+(instance dateTimeCalculation Predicate)
+(domain dateTimeCalculation 1 Integer)
+(domain dateTimeCalculation 2 Integer)
+(domain dateTimeCalculation 3 Integer)
+(domain dateTimeCalculation 4 Integer)
+(domain dateTimeCalculation 5 Integer)
+(domain dateTimeCalculation 6 Integer)
+(domain dateTimeCalculation 7 Integer)
+(domain dateTimeCalculation 8 Integer)
+(domainSubclass dateTimeCalculation 9 Minute)
+(documentation dateTimeCalculation EnglishLanguage
+  "Date-time normalization relation inherited from the temporal arithmetic layer.")
+
+(instance nthWeekdayDate Predicate)
+(domain nthWeekdayDate 1 Integer)
+(domainSubclass nthWeekdayDate 2 Day)
+(domain nthWeekdayDate 3 Integer)
+(domain nthWeekdayDate 4 Integer)
+(domainSubclass nthWeekdayDate 5 Day)
+(documentation nthWeekdayDate EnglishLanguage
+  "nthWeekdayDate(N,W,M,Y,D) states that D is the N-th weekday-class W date in month M of year Y.")
+
+(instance validCalendarDate TernaryPredicate)
+(domain validCalendarDate 1 Integer)
+(domain validCalendarDate 2 Integer)
+(domain validCalendarDate 3 Integer)
+(documentation validCalendarDate EnglishLanguage
+  "validCalendarDate(Y,M,D) states that Y-M-D is a valid Gregorian calendar coordinate relative to daysInMonth.")
+
+(instance YearIntervalFn UnaryFunction)
+(domain YearIntervalFn 1 Integer)
+(range YearIntervalFn TimeInterval)
+
+(instance MonthIntervalFn BinaryFunction)
+(domain MonthIntervalFn 1 Integer)
+(domain MonthIntervalFn 2 Integer)
+(range MonthIntervalFn TimeInterval)
+
+(instance DayIntervalFn TernaryFunction)
+(domain DayIntervalFn 1 Integer)
+(domain DayIntervalFn 2 Integer)
+(domain DayIntervalFn 3 Integer)
+(range DayIntervalFn TimeInterval)
+
+(instance DateTimeMinuteIntervalFn Function)
+(domain DateTimeMinuteIntervalFn 1 Integer)
+(domain DateTimeMinuteIntervalFn 2 Integer)
+(domain DateTimeMinuteIntervalFn 3 Integer)
+(domain DateTimeMinuteIntervalFn 4 Integer)
+(domain DateTimeMinuteIntervalFn 5 Integer)
+(range DateTimeMinuteIntervalFn TimeInterval)
+
+;; Allen-style relations used by this package are the existing SUMO
+;; temporal predicates where available: earlier, meetsTemporally, starts,
+;; finishes, and during.  The package intentionally does not declare
+;; parallel allen* predicates for those relations.
