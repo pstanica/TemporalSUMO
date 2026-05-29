@@ -1,9 +1,0 @@
-;; ============================================================================
-;; CalendarSUMO_Derived.kif
-;;
-;; Reserved for derived lemmas that are separately justified or mechanically
-;; checked.  This initial release intentionally contains no additional axioms.
-;;
-;; The omission is deliberate: the six-file separation is useful only if the
-;; semantic core, bridge axioms, and benchmark conjectures remain distinct.
-;; ============================================================================
